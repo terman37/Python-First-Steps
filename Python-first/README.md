@@ -23,3 +23,5 @@
 > 	what is the shortest path to connect all the points
 > 	here bounded TSP: points randomly distributed within a bound Euclidian rectangle.
 > 	Naïve solver = O(n!) complexity
+
+<img src="UseCase_TSP_naive_solver/overview_solution.png" alt="overview_solution" style="zoom:50%;" />

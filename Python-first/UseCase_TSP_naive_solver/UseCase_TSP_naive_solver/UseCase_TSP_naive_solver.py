@@ -93,7 +93,7 @@ def main():
     
     t1 = datetime.now()
     
-    nb_points= 10
+    nb_points= 8
     plist = generate_random_points(nb_points)
     pclist = build_all_polygon_chain(plist)
 

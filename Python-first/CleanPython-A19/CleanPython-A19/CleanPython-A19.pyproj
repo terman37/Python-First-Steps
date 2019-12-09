@@ -21,10 +21,13 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CleanPython_A19.py" />
-    <Compile Include="module1.py">
+    <Compile Include="CompTools.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="My2DGeom.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CleanPython_A19.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

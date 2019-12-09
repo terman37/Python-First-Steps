@@ -3,8 +3,9 @@ from random import seed
 from random import random
 from math import sqrt
 from datetime import datetime
+import matplotlib.pyplot as plt
 
-seed(200)
+#seed(200)
 
 class point2D:
     # Point in 2D space with name, X and Y
@@ -13,61 +14,44 @@ class point2D:
         self.x=x
         self.y=y
 
-class linesegment:
-    # segment consisting of 2 points with a name and a norm
-    def __init__(self,name,p1,p2):
-        self.name=name
-        self.p1=p1
-        self.p2=p2
-        self.calculate_norm()
-    
-    def calculate_norm(self):
-        self.norm = sqrt((self.p1.x - self.p2.x)**2 + (self.p1.y - self.p2.y)**2 )
-
 class polygonchain:
-    # polygonchain consisting of n segments with a name and a norm
+    # polygonchain consisting of n points with a name and length
     def __init__(self,name):
         self.name = name
         self.points=[]
         self.nbpoints=0
-        self.seglist = []
         self.length = 0
 
-    def add_segment(self,segment):
-        self.seglist.append(segment)
-        self.length += segment.norm
-
     def add_point(self,point):
+        if self.nbpoints !=0:
+            lastpoint = self.points[-1]
+            self.add_length(lastpoint,point)
         self.points.append(point)
         self.nbpoints += 1
         self.name += point.name + "-"
+        
+    def add_length(self,lastpoint,newpoint):
+        self.length = self.length + sqrt((lastpoint.x - newpoint.x)**2 + (lastpoint.y - newpoint.y)**2 )
 
-# Script functions:
-
-# return a list containing n point2D 
-# named increasingly for example "P" + n
-# with x and y generated randomly within [0;spacesize]
-def generate_random_points(n=50):
-    spacesize=10
+def generate_random_points(n=50,spacesize=10):
+    """ 
+    return a list containing n point2D 
+    named increasingly for example "P" + n
+    with x and y generated randomly within [0;spacesize]
+    """
+    
     pointlist=[]
     for i in range(0,n):
         point = point2D(name="P"+str(i),x=spacesize*random(),y=spacesize*random())
         pointlist.append(point)
     return pointlist
 
-# return a list containing all possible linesegment (n!)
-def build_all_segments(point_list):
-    segmentlist=[]
-    for idx,startpoint in enumerate(point_list):
-        for endpoint in point_list[idx+1:]:
-            segname = startpoint.name + "-" + endpoint.name
-            segment = linesegment(segname,startpoint,endpoint)
-            segmentlist.append(segment)
-    return segmentlist
-
-# return a list of polygonchain
 def build_all_polygon_chain(point_list):
-    
+    """ 
+    generates a list containing all possible polygonal chains 
+    from a given list of points
+    """
+
     polychainlist=[]
     
     # Always start loop at point 0
@@ -76,9 +60,8 @@ def build_all_polygon_chain(point_list):
     pc0.add_point(startpoint)
     polychainlist.append(pc0)
     
-    # for each level
-    for n in range(0,len(point_list)-1):
-        
+    # for each level (except 0 as starting point)
+    for n in range(1,len(point_list)):
         # take the exisiting polygonalchains
         oldpolychainlist=polychainlist[:]
         for oldpc in oldpolychainlist:
@@ -95,46 +78,54 @@ def build_all_polygon_chain(point_list):
                     pc.add_point(oldpoint)
                     lastpoint=oldpoint
                 pc.add_point(newpoint)
-                pc.length = oldpc.length + sqrt((lastpoint.x - newpoint.x)**2 + (lastpoint.y - newpoint.y)**2 )
                 polychainlist.append(pc)
             # remove chain with not enough point
             polychainlist.remove(oldpc)
 
     # Close the Loop
     for pc in polychainlist:
-
-        pc.add_point(startpoint)
         lastpoint = pc.points[-1]
-        pc.length += sqrt((lastpoint.x - startpoint.x)**2 + (lastpoint.y - startpoint.y)**2 )
+        pc.add_point(startpoint)
 
     return polychainlist
 
+def main():
+    
+    t1 = datetime.now()
+    
+    nb_points= 10
+    plist = generate_random_points(nb_points)
+    pclist = build_all_polygon_chain(plist)
+
+    # display point coordinates
+    for p in plist:
+        print(p.name + ": ({};{})".format(p.x,p.y))
+        plt.scatter(p.x,p.y,linestyle='-')
+        plt.text(p.x+.1, p.y+.1, p.name, fontsize=9)
+    
+    # find shortest path
+    shortest_path = pclist[0]
+    for pc in pclist:
+        #print("Path: {}, length: {}".format(pc.name,pc.length))
+        if pc.length < shortest_path.length:
+            shortest_path = pc
+    
+    xlist=[p.x for p in shortest_path.points]
+    ylist=[p.y for p in shortest_path.points]
+    plt.plot(xlist,ylist,linestyle='-')
+
+    print("Shorest path is " + shortest_path.name + ": {}".format(shortest_path.length))
+    
+    # Display computation time (start to be very long from n=10)
+    t2 = datetime.now()
+    duration=t2-t1
+    print("computation time :{}".format(duration))
+
+    plt.show()
+
 
 # Main:
-
-t1 = datetime.now()
-
-nb_points= 10
-plist = generate_random_points(nb_points)
-#slist = build_all_segments(plist)
-pclist = build_all_polygon_chain(plist)
-
-for p in plist:
-    print(p.name + ": ({};{})".format(p.x,p.y))
-
-#for s in slist:
-#    print(s.name + ": {}".format(s.norm))
-
-smallest_length = pclist[0].length
-smallest_name = pclist[0].name
-for pc in pclist:
-    #print(pc.name + ":" + str(pc.length))
-    if pc.length < smallest_length:
-        smallest_length = pc.length
-        smallest_name = pc.name
-
-
-t2 = datetime.now()
-duration=t2-t1
-print("computation time :{}".format(duration))
-print("Shorest path is " + smallest_name + ": {}".format(smallest_length))
+if __name__ == "__main__":
+   
+    main()
+    

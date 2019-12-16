@@ -5,7 +5,6 @@ from math import sqrt
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-
 # seed(200)
 
 class point2D:
@@ -16,11 +15,11 @@ class point2D:
         self.y = y
 
     def __str__(self):
-        return (self.name + ": ({};{})".format(self.x, self.y))
-
+        rstr = self.name + ": ( %.3f ; %.3f )" % (self.x, self.y)
+        return rstr
 
 class polygonchain:
-    # polygonchain consisting of n points with a name and length
+    # polygonchain consisting of n points2D with a name and length
     def __init__(self, name):
         self.name = name
         self.points = []
@@ -38,6 +37,15 @@ class polygonchain:
     def add_length(self, lastpoint, newpoint):
         self.length = self.length + sqrt((lastpoint.x - newpoint.x) ** 2 + (lastpoint.y - newpoint.y) ** 2)
 
+    def __lt__(self, other):
+        return self.length < other.length
+    
+    def __gt__(self,other):
+        return self.length > other.length
+
+    def __str__(self):
+        rstr = "Path : " + self.name + " ; Length = %.3f" % self.length
+        return rstr
 
 def generate_random_points(n=50, spacesize=10):
     """ 
@@ -52,43 +60,43 @@ def generate_random_points(n=50, spacesize=10):
         pointlist.append(point)
     return pointlist
 
-
 def build_all_polygon_chain(point_list):
     """ 
     generates a list containing all possible polygonal chains 
     from a given list of points
     """
 
-    polychainlist = []
-
-    # Always start loop at point 0
+    
+    # Create initial polygonnchain starting at point 0
     startpoint = point_list[0]
-    pc = polygonchain("First chain")
+    pc = polygonchain("initial polygonnchain")
     pc.add_point(startpoint)
+    # Initialize polygonchain list
+    polychainlist = []
     polychainlist.append(pc)
 
-    # for each level (except 0 as starting point)
+    # For each level (except 0 as it's starting point)
     for n in range(1, len(point_list)):
-        # take the exisiting polygonalchains
-        oldpolychainlist = polychainlist[:]
-        for oldpc in oldpolychainlist:
-            # add points that were not previously in the chain
+        # Take the exisiting polygonalchains
+        polychainlist_copy = polychainlist[:]
+        for incomplete_polychain in polychainlist_copy:
+            # Split point list between points that were/were not already in polygonchain
             remaining_point_list = point_list[:]
-            pc_plist = []
-            for point in oldpc.points:
-                pc_plist.append(point)
+            points_already_added = []
+            for point in incomplete_polychain.points:
+                points_already_added.append(point)
                 remaining_point_list.remove(point)
-            # Create new chains with +1 point
+            # Create new chain with +1 point
             for newpoint in remaining_point_list:
                 pc = polygonchain("")
-                for oldpoint in pc_plist:
-                    pc.add_point(oldpoint)
+                for point in points_already_added:
+                    pc.add_point(point)
                 pc.add_point(newpoint)
                 polychainlist.append(pc)
-            # remove chain with not enough point
-            polychainlist.remove(oldpc)
+            # Remove incomplete chain from the list
+            polychainlist.remove(incomplete_polychain)
 
-    # Close the Loop
+    # Close the Loop by going back at start point (point0)
     for pc in polychainlist:
         pc.add_point(startpoint)
 
@@ -98,34 +106,37 @@ def build_all_polygon_chain(point_list):
 def main():
     t1 = datetime.now()
 
-    nb_points = 8
-    plist = generate_random_points(nb_points)
-    pclist = build_all_polygon_chain(plist)
+    nb_points = 9
+    point_list = generate_random_points(nb_points)
+    polygonchain_list = build_all_polygon_chain(point_list)
 
-    # display point coordinates
-    for p in plist:
+    # Display point coordinates and add it on plot
+    print("\nGenerated points:")
+    for p in point_list:
         print(p)
         plt.scatter(p.x, p.y)
         plt.text(p.x + .1, p.y + .1, p.name, fontsize=10)
 
-    # find shortest path
-    shortest_path = pclist[0]
-    for pc in pclist:
-        # print("Path: {}, length: {}".format(pc.name,pc.length))
-        if pc.length < shortest_path.length:
-            shortest_path = pc
+    # Find polygonal chain with smallest length
+    shortest_path = min(polygonchain_list)
+    print("\n--> Shortest %s" % shortest_path)
 
+    # Longest path (to compare...)
+    longest_path = max(polygonchain_list)
+    print("\nFor info:\n- Worst %s" % longest_path)
+    print("- Calculated total of %d paths possible through %d points" % (len(polygonchain_list),len(point_list)))
+
+    # Draw path on plot
     xlist = [p.x for p in shortest_path.points]
     ylist = [p.y for p in shortest_path.points]
     plt.plot(xlist, ylist, linestyle='-')
 
-    print("Shortest path is " + shortest_path.name + ": {}".format(shortest_path.length))
-
-    # Display computation time (start to be very long from n=10)
+    # Display computation time (start to be very long from 10 points => 9! = 362,880 paths)
     t2 = datetime.now()
     duration = t2 - t1
-    print("computation time :{}".format(duration))
+    print("- Computation time :{}".format(duration))
 
+    # Finally show plot
     plt.show()
 
 

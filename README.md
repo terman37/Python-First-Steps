@@ -9,3 +9,6 @@ Some python scripts and notebooks used during classes
    - Tweepy scrapper
    - TSP naive solver
 
+5. [Python Labs](Python-Labs)
+   - Data exploration
+   - Regression / Classification using Sickit Learn

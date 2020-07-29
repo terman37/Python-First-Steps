@@ -1,14 +1,31 @@
-# Python-First-Steps
+# Python Programming
 
-Some python scripts and notebooks used during classes
+- Functions / Classes (highly commented code to understand basics of OOP in python)
+  - classes, lambda, generators, decorators
 
-1. [Intro - Jupyter notebooks](Python-Introduction-Jupyter-notebooks/)
-2. [Usefull scrap - bunch of scripts maybe needed at some points](Python-usefull-various/)
-4. [First Python A19](Python-first/)
-4. [Some projects](Python-mini-projects/)
-   - Tweepy scrapper
-   - TSP naive solver
+- Notebooks:
+  - Self assessement
+  - Numpy:
+    - Intro
+    - Numerical operations
+    - Broadcasting
+    - Vectorization
+    - Operations
+    - Indexing Slicing
+  - Tuples
+  - Shallow and Deep copies
 
-5. [Python Labs](Python-Labs)
-   - Data exploration
-   - Regression / Classification using Sickit Learn
+- Naive TSP Solver
+
+  **Traveling Salesman Problem:**
+  	What is the shortest path to connect all the points?
+  	here bounded TSP: points randomly distributed within a bound Euclidian rectangle.
+  	Naïve solver = O(n!) complexity
+
+  <img src="2-NaiveTspSolver/overview_solution.png" alt="overview_solution" style="zoom:50%;" />
+
+
+
+- Tweepy scrapper
+
+  Given a list of tweets ID, get the corresponding tweet using tweepy package
